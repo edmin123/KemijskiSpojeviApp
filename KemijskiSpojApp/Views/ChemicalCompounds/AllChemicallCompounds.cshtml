@@ -1,0 +1,97 @@
+﻿
+@{
+    ViewBag.Title = "AllChemicallCompunds";
+}
+
+<h2>Svi kemijski spojevi</h2>
+<hr />
+
+<a type="button" class="btn btn-sm btn-primary" href="@Url.Action("New")">Dodaj novi kemijski spoj</a>
+<br/>
+<br />
+<table class="table table-bordered table-condensed" id="compounds">
+    <thead>
+        <tr>
+            <th>Ime spoja</th>
+            <th>Formula spoja</th>
+            <th>Tip spoja</th>
+            <th>Izbriši</th>
+        </tr>
+    </thead>
+    <tbody>
+
+
+    </tbody>
+
+</table>
+
+
+@section scripts{
+
+<script>
+    $(document).ready(function () {
+        var table = $("#compounds").DataTable({
+            ajax: {
+                url: '@Url.Action("GetAllChemicalCompounds")',
+                dataSrc: ""
+
+            },
+            searching: false,
+            paging: false,
+            info: false,
+            columns: [
+                {
+                    data: "Name",
+                    render: function (data, type, compound) {
+                        return "<a href='/ChemicalCompounds/Edit/" + compound.Id + "'>" + compound.Name + "</button>";
+                    }
+                },
+                {
+                    data: "ChemicalSymbol"
+                },
+                {
+                    data: "ChemicalType.Name"
+
+                },
+                {
+                    data: "Id",
+                    render: function (data) {
+                        return "<button class='btn-link js-delete' data-id='" + data + "'>Izbriši</button>"
+                    }
+                }
+
+            ]
+
+        });
+
+        $("#compounds").on("click", ".js-delete", function () {
+            var button = $(this);
+            bootbox.confirm("Da li ste sigurni da želite izbrisati kemijski spoj?", function (result) {
+                if (result) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("DeleteCompound")',
+                        data: { id: button.attr("data-id") },
+
+                        success: function (data) {
+                            table.row(button.parents("tr")).remove().draw();
+                        }
+
+                    });
+                }
+
+            });
+            
+
+
+
+        });
+
+    });
+
+
+</script>
+
+
+    }
+
